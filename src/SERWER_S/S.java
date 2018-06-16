@@ -183,7 +183,7 @@ public class S {
         }
         System.out.println("");
         String s = new String(textEncrypted);
-        
+        System.out.println(s);
         return textEncrypted;
 	}
 

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -96,14 +97,18 @@ public class Sok_A_Client {
 		    Socket s = ss.accept();
 		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
 		    byte[][] array = (byte[][])is.readObject();
-		System.out.println(decryptAS(array[0]));
-		System.out.println(decryptAS(array[1]));
+		    array[0]= decryptAS(array[0]);
+		    array[1]= decryptAS(array[1]);
+		    
+		//System.out.println(decryptAS(array[0]));
+		//System.out.println(decryptAS(array[1]));
+		    firstSendAB(array[1]);
 		
 		
 		
 	}
 	
-	private String decryptAS(byte[] msg)throws Exception{
+	private byte[] decryptAS(byte[] msg)throws Exception{
 		Cipher desCipher;
         desCipher = Cipher.getInstance("DES");
         desCipher.init(Cipher.DECRYPT_MODE, ASSecretKey());
@@ -127,12 +132,18 @@ public class Sok_A_Client {
 		String message = BR.readLine();
 		System.out.println(message);
 		*/
-        
-        
-        return s;
+        return textDecrypted;
         
 	}
 	
+	public void firstSendAB(byte[] array)throws Exception{
+		
+		Socket s = new Socket("localhost", 1029);
+        ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
+        os.writeObject(array);
+	}
+	
+	/*
 	private String decryptmessage(String msg)throws Exception{
 		
 		StringTokenizer strTok = new StringTokenizer(msg, ",");
@@ -153,5 +164,5 @@ public class Sok_A_Client {
 		//String s =  desCipher.doFinal(Base64.getDecoder().decode(text), "UTF-8");;
       //  System.out.println(s);
        // return s;
-	}
+	}*/
 }
