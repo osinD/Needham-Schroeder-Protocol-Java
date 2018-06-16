@@ -18,7 +18,7 @@ public class Sok_B_Client {
 	public void reciving()throws Exception{
 		
 		
-		ServerSocket srvSocket = new ServerSocket(1027);
+		ServerSocket srvSocket = new ServerSocket(1029);
 		Socket sock = srvSocket.accept();
 		
 		InputStreamReader IR = new InputStreamReader(sock.getInputStream());
