@@ -3,6 +3,7 @@ package CLIENT_A;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -65,10 +66,10 @@ public class Sok_A_Client {
 	
 	private void receving()throws Exception{
 		
-		if(steps ==0){
-		steps ++;
 		
-		
+		/*
+		 * Pobieramy ciąg bajtowy zaszyfrowany od S -> {Na,Kab,B,(Kab,A}Kbs}Kas
+		 
 		ServerSocket srvSocket1 = new ServerSocket(1027);
 		Socket socket = srvSocket1.accept();
 		
@@ -84,27 +85,21 @@ public class Sok_A_Client {
 		   System.out.println(decryptAS(message));
 		}
 		srvSocket1.close();
-		receving();
-		}else{
-		
-		
-		ServerSocket srvSocket = new ServerSocket(1028);
-		Socket sock = srvSocket.accept();
-		InputStreamReader IR = new InputStreamReader(sock.getInputStream());
-		BufferedReader BR = new BufferedReader(IR);
-		String message = BR.readLine();  //pobranie wiadomosci z klient 1
-		System.out.println(message);
-	//	String message1 =decryptmessage(message);
+		*/
 		
 		/*
-		Socket sockB = new Socket("localhost",1027);
-		PrintStream ps = new PrintStream(sockB.getOutputStream());
-		ps.println(message1);
-		InputStreamReader IRB = new InputStreamReader(sockB.getInputStream());
-		BufferedReader BRB = new BufferedReader(IRB);
-		String messageB = BRB.readLine();
-		*/
-		}
+		 * Tutaj pobieramy ciąg bajtowy zaszyfrowany w postaci dwuwymiarowejTablicy 
+		 * array[0] -> zaszyfrowane Na,Kab,B
+		 * array[1] ->
+		 */
+		 ServerSocket ss = new ServerSocket(1027);
+		    Socket s = ss.accept();
+		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
+		    byte[][] array = (byte[][])is.readObject();
+		System.out.println(decryptAS(array[0]));
+		System.out.println(decryptAS(array[1]));
+		
+		
 		
 	}
 	
@@ -113,7 +108,27 @@ public class Sok_A_Client {
         desCipher = Cipher.getInstance("DES");
         desCipher.init(Cipher.DECRYPT_MODE, ASSecretKey());
         byte[] textDecrypted = desCipher.doFinal(msg);
+        
+        
         String s = new String(textDecrypted);
+        System.out.println(s);
+        /*
+        StringTokenizer strTok = new StringTokenizer(s, ",");
+        String A = strTok.nextToken();
+        String Keyab = strTok.nextToken();
+        String B = strTok.nextToken();
+        String Kbs = strTok.nextToken();
+        
+        Socket sock = new Socket("localhost",1029);
+		PrintStream  ps = new PrintStream(sock.getOutputStream());
+		ps.println(Kbs);
+		InputStreamReader IR = new InputStreamReader(sock.getInputStream());
+		BufferedReader BR = new BufferedReader(IR);
+		String message = BR.readLine();
+		System.out.println(message);
+		*/
+        
+        
         return s;
         
 	}

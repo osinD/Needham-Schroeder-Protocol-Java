@@ -25,7 +25,12 @@ public class Sok_B_Client {
 		BufferedReader BR = new BufferedReader(IR);
 		String message = BR.readLine();  //pobranie wiadomosci z klient 1
 		
-		System.out.println(message); 
+		System.out.println(message);
+		byte[] text = message.getBytes("UTF8");
+		for(byte b : text){
+        	System.out.print(b+" ");
+        }
+        System.out.println("");
 	}
 
 }
