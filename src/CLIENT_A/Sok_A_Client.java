@@ -28,6 +28,8 @@ public class Sok_A_Client {
 	public final String stronaA ="A" ,stronaB="B";
 	public static int Na =1234567;
 	public static int steps =0;
+	public static String  ABSecretKey= "";
+	
 
 	
 	public static void main(String[] args) throws Exception
@@ -48,10 +50,11 @@ public class Sok_A_Client {
 	
 	
 	private void run() throws Exception {
+		
 		Random rnd = new Random();
 		Na= rnd.nextInt(10000);
 		Sok_A_Client client = new Sok_A_Client();
-		if(steps ==0){
+		//if(steps ==0){
 		String msg =stronaA+","+stronaB+","+Na;
 		Socket sock = new Socket("localhost",1025);
 		PrintStream  ps = new PrintStream(sock.getOutputStream());
@@ -61,37 +64,18 @@ public class Sok_A_Client {
 		String message = BR.readLine();
 		System.out.println(message);
 		client.receving();
-		}
+		//}
 	}
 	
 	
 	private void receving()throws Exception{
 		
-		
-		/*
-		 * Pobieramy ciąg bajtowy zaszyfrowany od S -> {Na,Kab,B,(Kab,A}Kbs}Kas
-		 
-		ServerSocket srvSocket1 = new ServerSocket(1027);
-		Socket socket = srvSocket1.accept();
-		
-		DataInputStream dIn = new DataInputStream(socket.getInputStream());
-
-		int length = dIn.readInt();                    // read length of incoming message
-		if(length>0) {
-		    byte[] message = new byte[length];
-		   dIn.readFully(message, 0, message.length);
-		   // read the message'
-		   String s = new String(message);
-		   System.out.println(s);
-		   System.out.println(decryptAS(message));
-		}
-		srvSocket1.close();
-		*/
+		if(steps==0){
 		
 		/*
 		 * Tutaj pobieramy ciąg bajtowy zaszyfrowany w postaci dwuwymiarowejTablicy 
 		 * array[0] -> zaszyfrowane Na,Kab,B
-		 * array[1] ->
+		 * array[1] -> {{Kab,A}Kbs}Kas
 		 */
 		 ServerSocket ss = new ServerSocket(1027);
 		    Socket s = ss.accept();
@@ -99,39 +83,92 @@ public class Sok_A_Client {
 		    byte[][] array = (byte[][])is.readObject();
 		    array[0]= decryptAS(array[0]);
 		    array[1]= decryptAS(array[1]);
+		    /*
+		     * Rozdzielamy tutaj zaszyfrowane wiadomości i przeszukujemy w celu odebrania i zapisania do zmiennych statycznych 
+		     */
+		    String message= new String(array[0]);
+		    StringTokenizer strTok = new StringTokenizer(message, ",");
+		    String Na=strTok.nextToken();
+		    ABSecretKey= strTok.nextToken();
+		    System.out.println("Klucz AB ->"+ASSecretKey());
 		    
-		//System.out.println(decryptAS(array[0]));
-		//System.out.println(decryptAS(array[1]));
+		    
+		    
+		    
+		    
+		    ss.close();
+		    steps++;
 		    firstSendAB(array[1]);
+		}else if(steps==1){
+			/*
+			 * W tym miejscu pobieramy wiadomości od B przerabiamy i wysyłamy{Nb-1}Kab
+			 *
+			 */
+			steps++;
+			ServerSocket ss = new ServerSocket(1027);
+		    Socket s = ss.accept();
+		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
+		    byte[] array1 = (byte[])is.readObject();
+		    System.out.println("zaszyfrowana wiadomość od B {Nb}Kab -> "+new String(array1));
+		    array1= decryptAB(array1);
+		    /*
+		     * Pobieramy wiadomość od B deszyfrujemy a pod spodem
+		     * Przerabiamy na Int następnie na Inta odejmujemy 1 przerabiamy znowy na string i wysyłamy
+		     */
+		    String BA= new String(array1);
+		    int Nbminus1= Integer.parseInt(BA)-1;
+		    System.out.println("Wiadomość do przesłsania do A->b ->"+Nbminus1);
+		    String messageAbToSend = Integer.toString(Nbminus1);
+		   
+		    byte[] decodedKey = Base64.getDecoder().decode(ABSecretKey);
+			SecretKey ABSecretKey1 = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+		    
+		    Cipher desCipher;
+	        desCipher = Cipher.getInstance("DES");
+		    desCipher.init(Cipher.ENCRYPT_MODE, ABSecretKey1);
+		    byte[] textEncrypted1 = desCipher.doFinal(messageAbToSend.getBytes("UTF8"));
+		    System.out.println("Wiadomość A->B {NB-1} zaszyfrowana ->"+new String (textEncrypted1));
+		    firstSendAB(textEncrypted1);
+		}
 		
 		
 		
 	}
+	/*
+	 * Metoda odszyfrowująca pierwszą komunikację S -> A
+	 */
 	
 	private byte[] decryptAS(byte[] msg)throws Exception{
+		
+		System.out.println("Zaszyfrowana wiadomość otrzymana od strony S - >"+ new String(msg));
+		
+		
 		Cipher desCipher;
         desCipher = Cipher.getInstance("DES");
         desCipher.init(Cipher.DECRYPT_MODE, ASSecretKey());
         byte[] textDecrypted = desCipher.doFinal(msg);
-        
-        
         String s = new String(textDecrypted);
-        System.out.println(s);
-        /*
-        StringTokenizer strTok = new StringTokenizer(s, ",");
-        String A = strTok.nextToken();
-        String Keyab = strTok.nextToken();
-        String B = strTok.nextToken();
-        String Kbs = strTok.nextToken();
+        System.out.println("Odszyfrowana wiadomość S ->A -> "+s);
+
+        return textDecrypted;
         
-        Socket sock = new Socket("localhost",1029);
-		PrintStream  ps = new PrintStream(sock.getOutputStream());
-		ps.println(Kbs);
-		InputStreamReader IR = new InputStreamReader(sock.getInputStream());
-		BufferedReader BR = new BufferedReader(IR);
-		String message = BR.readLine();
-		System.out.println(message);
-		*/
+	}
+	
+	/*
+	 * Metoda rozszyrowująca pierwszą komunikacją B - > A
+	 */
+	private byte[] decryptAB(byte[] msg)throws Exception{
+		
+		
+		byte[] decodedKey = Base64.getDecoder().decode(ABSecretKey);
+		SecretKey ABSecretKey1 = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+		Cipher desCipher;
+        desCipher = Cipher.getInstance("DES");
+        desCipher.init(Cipher.DECRYPT_MODE, ABSecretKey1);
+        byte[] textDecrypted = desCipher.doFinal(msg);
+        String s = new String(textDecrypted);
+        System.out.println("Wiadomość B->A po zdeszyfrowania czyli Nb - > "+s);
+
         return textDecrypted;
         
 	}
@@ -141,28 +178,10 @@ public class Sok_A_Client {
 		Socket s = new Socket("localhost", 1029);
         ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
         os.writeObject(array);
+        s.close();
+        receving();
 	}
 	
-	/*
-	private String decryptmessage(String msg)throws Exception{
-		
-		StringTokenizer strTok = new StringTokenizer(msg, ",");
-		String msg1 =strTok.nextToken();
-		String key = strTok.nextToken();
-		System.out.println(key);
-		S sElement = new S();
-		byte[] decodedKey = Base64.getDecoder().decode(key);
-		SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
-		
-		Cipher desCipher;
-        desCipher = Cipher.getInstance("DES");
-        byte[] text = msg1.getBytes("UTF8");
-		desCipher.init(Cipher.DECRYPT_MODE, originalKey);
-        byte[] textDecrypted = desCipher.doFinal(text);
-
-        return "xxx";
-		//String s =  desCipher.doFinal(Base64.getDecoder().decode(text), "UTF-8");;
-      //  System.out.println(s);
-       // return s;
-	}*/
+	
+	
 }

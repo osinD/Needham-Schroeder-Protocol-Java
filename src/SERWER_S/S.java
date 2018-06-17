@@ -65,7 +65,7 @@ public class S {
 		String message1 = BR1.readLine();
 		PrintStream ps = new PrintStream(sock1.getOutputStream());
 		ps.println("Message recived");
-		System.out.println(message1);
+		System.out.println("Otrzymana wiadomość A,B , Na ->"+message1);
 		
 		srvSocket1.close();
 		String msgA =message1;
@@ -89,7 +89,6 @@ public class S {
 			 */
 			byte[] messageKbs = encryptDesBS(myDesABkey+","+A);
 			String msgSA =Na+","+myDesABkey+","+B+",";
-			System.out.println(msgSA);
 			encryptDes(msgSA,messageKbs);
 		
 			
@@ -121,17 +120,14 @@ public class S {
 		
 		
 		
-		//tak było
-		//keygenerator = KeyGenerator.getInstance("DES");
+		
         SecretKey myDesKey = ASSecretKey();//keygenerator.generateKey(); //tak było
         Kas = Base64.getEncoder().encodeToString(myDesKey.getEncoded());
         
-        System.out.println(message);
+        System.out.println("wiadomość , którą będziemy szyfrować - > "+message+new String(array));
         Cipher desCipher;
         desCipher = Cipher.getInstance("DES");
         byte[][] text = {message.getBytes("UTF8"),array};
-       // text[0] = message.getBytes("UTF8");
-       // text[1] = array;
         desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
         byte[] textEncrypted1;  
         textEncrypted1 = desCipher.doFinal(message.getBytes("UTF8"));
@@ -139,21 +135,13 @@ public class S {
         textEncrypted2 = desCipher.doFinal(array);
         
         byte[][] encryptedText = {textEncrypted1,textEncrypted2} ;
-       // encryptedText[0] =textEncrypted1;
-       // encryptedText[1] = textEncrypted2;
+       
         String s1 = new String(textEncrypted1);
         String s2 = new String(textEncrypted2);
-        System.out.println(s1 + s2);
         
-        /*
-         * Przesyłamy tędy tablice bajtów
-         */
-        /*
-        Socket socket = new Socket("localhost",1027);
-        DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-        dOut.writeInt(textEncrypted.length); // write length of the message
-        dOut.write(textEncrypted);
+        System.out.println("Zaszyfrowana wiadomość , którą bądziemy przesyłać A->B -> "+s1 + s2);
         
+       
         /*
          * Próbujemy przeslac dwuwymiarową tablicę bajtów
          * 
@@ -168,7 +156,10 @@ public class S {
 	
 	
 	
-	
+	/*
+	 * Szyfrujemy część do odszyfrowania potem przez stronę B w komunikacji A ->B
+	 * {Kab,A}Kbs
+	 */
 	
 	private byte[] encryptDesBS(String message)throws Exception{
 		
@@ -178,12 +169,8 @@ public class S {
         byte[] text = message.getBytes("UTF8");
         desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
         byte[] textEncrypted = desCipher.doFinal(text);
-        for(byte b : textEncrypted){
-        	System.out.print(b+" ");
-        }
-        System.out.println("");
         String s = new String(textEncrypted);
-        System.out.println(s);
+       // System.out.println(s);
         return textEncrypted;
 	}
 
