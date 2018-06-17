@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import javax.crypto.Cipher;
@@ -29,6 +30,7 @@ public class Sok_A_Client {
 	public static int Na =1234567;
 	public static int steps =0;
 	public static String  ABSecretKey= "";
+	public Scanner scn;
 	
 
 	
@@ -109,6 +111,7 @@ public class Sok_A_Client {
 		    Socket s = ss.accept();
 		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
 		    byte[] array1 = (byte[])is.readObject();
+		    ss.close();
 		    System.out.println("zaszyfrowana wiadomość od B {Nb}Kab -> "+new String(array1));
 		    array1= decryptAB(array1);
 		    /*
@@ -129,6 +132,20 @@ public class Sok_A_Client {
 		    byte[] textEncrypted1 = desCipher.doFinal(messageAbToSend.getBytes("UTF8"));
 		    System.out.println("Wiadomość A->B {NB-1} zaszyfrowana ->"+new String (textEncrypted1));
 		    firstSendAB(textEncrypted1);
+		}else{
+			ServerSocket ss = new ServerSocket(1027);
+		    Socket s = ss.accept();
+		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
+		    byte[] array1 = (byte[])is.readObject();
+		    ss.close();
+		    System.out.println("ROZPOCZYNAMY BEZPIECZNĄ KOMUNIKACJĘ");
+		    System.out.println("zaszyfrowana wiadomość komunikacji  od B  -> "+new String(array1));
+		    array1 = decryptAB(array1);
+		    System.out.println("Podaj wiadomość ");
+		    scn = new Scanner(System.in);
+		    String legalMessage = scn.nextLine();
+		    firstSendAB(encryptAB(legalMessage));
+		    
 		}
 		
 		
@@ -167,10 +184,24 @@ public class Sok_A_Client {
         desCipher.init(Cipher.DECRYPT_MODE, ABSecretKey1);
         byte[] textDecrypted = desCipher.doFinal(msg);
         String s = new String(textDecrypted);
-        System.out.println("Wiadomość B->A po zdeszyfrowania czyli Nb - > "+s);
+        System.out.println("Wiadomość B->A po zdeszyfrowaniu - > "+s);
 
         return textDecrypted;
         
+	}
+	private byte[] encryptAB(String msg)throws Exception {
+		
+		byte[] decodedKey = Base64.getDecoder().decode(ABSecretKey);
+		SecretKey ABSecretKey1 = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
+	    
+	    Cipher desCipher;
+        desCipher = Cipher.getInstance("DES");
+	    desCipher.init(Cipher.ENCRYPT_MODE, ABSecretKey1);
+	    byte[] textEncrypted1 = desCipher.doFinal(msg.getBytes("UTF8"));
+	    System.out.println("Wiadomość A->B {NB-1} zaszyfrowana ->"+new String (textEncrypted1));
+	    return textEncrypted1;
+	    
+	    
 	}
 	
 	public void firstSendAB(byte[] array)throws Exception{

@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Base64;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import javax.crypto.Cipher;
@@ -22,6 +23,7 @@ public class Sok_B_Client {
 	private static int steps =0;
 	private static int Nb=0;
 	private static SecretKey ABSecretKey;
+	private Scanner scn;
 	
 	
 	private int generateNb(){
@@ -67,9 +69,32 @@ public class Sok_B_Client {
 		    Socket s = ss.accept();
 		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
 		    byte[] array2 = (byte[])is.readObject();
+		    ss.close();
 			String msg = new String(array2);
 			System.out.println("Otrzymana zaszyfrowana wiadomość od A czli Nb-1-> "+msg);
+			array2=decryptAB2(array2);
 			
+			
+			System.out.println("MOŻEMY ROZPOCZĄĆ BEZPIECZNĄ KOMUNIKACJĘ");
+			scn = new Scanner(System.in);
+			System.out.println("Co chcesz wysać ?");
+			String legalMessage =scn.nextLine();
+			encryptBAmessage(legalMessage);
+			
+		}else{
+			ServerSocket ss = new ServerSocket(1029);
+		    Socket s = ss.accept();
+		    ObjectInputStream is = new ObjectInputStream(s.getInputStream());
+		    byte[] array2 = (byte[])is.readObject();
+		    ss.close();
+		    
+		    String msg = new String(array2);
+		    System.out.println("Otrzymana zaszyfrowana wiadomość od A -> "+msg);
+			array2=decryptAB2(array2);
+			scn = new Scanner(System.in);
+			System.out.println("Co chcesz wysać ?");
+			String legalMessage =scn.nextLine();
+			encryptBAmessage(legalMessage);
 		}
 	       
 	}
@@ -118,11 +143,35 @@ public class Sok_B_Client {
         return textDecrypted;
 	}
 	
+	private byte[] decryptAB2(byte[] msg)throws Exception{
+		
+		Cipher desCipher;
+        desCipher = Cipher.getInstance("DES");
+        desCipher.init(Cipher.DECRYPT_MODE, ABSecretKey);
+        byte[] textDecrypted = desCipher.doFinal(msg);
+        
+        
+        String s = new String(textDecrypted);
+        System.out.println("Odszyfrowana wiadomość otrzymana od A  ->"+s);
+        return textDecrypted;
+	}
+	
+	public void encryptBAmessage(String msg)throws Exception{
+		Cipher desCipher;
+        desCipher = Cipher.getInstance("DES");
+        desCipher.init(Cipher.ENCRYPT_MODE, ABSecretKey);
+        byte[] textDecrypted = desCipher.doFinal(msg.getBytes("UTF8"));
+        String s = new String(textDecrypted);
+        System.out.println("Zaszyfrowana wiadomość  którą prześlemy do A -> "+s);
+		firstSendBA(textDecrypted);
+	}
+	
 	public void firstSendBA(byte[] array)throws Exception{
 		
 		Socket s = new Socket("localhost", 1027);
         ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
         os.writeObject(array);
+        s.close();
         reciving();
 	}
 
