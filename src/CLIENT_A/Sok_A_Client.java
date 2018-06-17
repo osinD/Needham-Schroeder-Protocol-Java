@@ -53,11 +53,22 @@ public class Sok_A_Client {
 	
 	private void run() throws Exception {
 		
+		/*
+		 * Ustalamy Na - generujemy liczbę randomową do 10000  
+		 * strona A i strona B jest na razie wpisana na sztywno
+		 */
 		Random rnd = new Random();
 		Na= rnd.nextInt(10000);
 		Sok_A_Client client = new Sok_A_Client();
-		//if(steps ==0){
 		String msg =stronaA+","+stronaB+","+Na;
+		
+		System.out.println("Wysłąć wiadomość A,B,Na do S ?");
+		scn = new Scanner(System.in);
+		String approve = scn.nextLine();
+				
+		/*
+		 * Wysyłamy wiadomość  msg powyżej do S
+		 */
 		Socket sock = new Socket("localhost",1025);
 		PrintStream  ps = new PrintStream(sock.getOutputStream());
 		ps.println(msg);
@@ -66,7 +77,7 @@ public class Sok_A_Client {
 		String message = BR.readLine();
 		System.out.println(message);
 		client.receving();
-		//}
+		
 	}
 	
 	
@@ -95,8 +106,9 @@ public class Sok_A_Client {
 		    System.out.println("Klucz AB ->"+ASSecretKey());
 		    
 		    
-		    
-		    
+		    System.out.println("Wysłąć wiadomość {Kab,A}Kbs do B ?"+ new String(array[1]));
+		    scn = new Scanner(System.in);
+			String approve = scn.nextLine();
 		    
 		    ss.close();
 		    steps++;
@@ -123,6 +135,10 @@ public class Sok_A_Client {
 		    System.out.println("Wiadomość do przesłsania do A->b ->"+Nbminus1);
 		    String messageAbToSend = Integer.toString(Nbminus1);
 		   
+		    
+		    
+		    
+		    
 		    byte[] decodedKey = Base64.getDecoder().decode(ABSecretKey);
 			SecretKey ABSecretKey1 = new SecretKeySpec(decodedKey, 0, decodedKey.length, "DES");
 		    
@@ -130,8 +146,11 @@ public class Sok_A_Client {
 	        desCipher = Cipher.getInstance("DES");
 		    desCipher.init(Cipher.ENCRYPT_MODE, ABSecretKey1);
 		    byte[] textEncrypted1 = desCipher.doFinal(messageAbToSend.getBytes("UTF8"));
-		    System.out.println("Wiadomość A->B {NB-1} zaszyfrowana ->"+new String (textEncrypted1));
+		    System.out.println("Wysłać Wiadomość A->B {NB-1} zaszyfrowaną ->"+new String (textEncrypted1));
+		    scn = new Scanner(System.in);
+			String approve = scn.nextLine();
 		    firstSendAB(textEncrypted1);
+		    
 		}else{
 			ServerSocket ss = new ServerSocket(1027);
 		    Socket s = ss.accept();
@@ -205,6 +224,8 @@ public class Sok_A_Client {
 	}
 	
 	public void firstSendAB(byte[] array)throws Exception{
+		
+		
 		
 		Socket s = new Socket("localhost", 1029);
         ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());

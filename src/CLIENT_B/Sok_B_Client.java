@@ -122,7 +122,9 @@ public class Sok_B_Client {
 	        desCipher.init(Cipher.ENCRYPT_MODE, ABSecretKey);
 	        byte[] textDecrypted = desCipher.doFinal(rndNbmessage.getBytes("UTF8"));
 	        String s = new String(textDecrypted);
-	        System.out.println("Zaszyfrowana wiadomość którą prześlemy do A {Nb}Kab ->"+s);
+	        System.out.println("Czy chcesz wysłać Zaszyfrowaną wiadomość  do A {Nb}Kab ->"+s);
+	        scn = new Scanner(System.in);
+	        String legalMessage =scn.nextLine();
 			firstSendBA(textDecrypted);
 	        
 			

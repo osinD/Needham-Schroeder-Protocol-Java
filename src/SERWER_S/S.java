@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import javax.crypto.Cipher;
@@ -25,6 +26,8 @@ public class S {
 	public static SecretKey keyAS;
 	public static String Kas="";
 	public  static String Kbs;
+	public Scanner scn;
+	
 	public static void main(String[] args) throws Exception{
 		S serwer = new S();
 		serwer.recive();
@@ -139,8 +142,9 @@ public class S {
         String s1 = new String(textEncrypted1);
         String s2 = new String(textEncrypted2);
         
-        System.out.println("Zaszyfrowana wiadomość , którą bądziemy przesyłać A->B -> "+s1 + s2);
-        
+        System.out.println("Wysłać zaszyfrowaną wiadomość , którą bądziemy przesyłać A->B -> "+s1 + s2);
+		scn = new Scanner(System.in);
+		String approve = scn.nextLine();
        
         /*
          * Próbujemy przeslac dwuwymiarową tablicę bajtów
