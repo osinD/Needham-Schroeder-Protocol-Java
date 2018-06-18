@@ -1,6 +1,6 @@
 # Needham-Schroeder-Protocol-Java
-*The Needham–Schroeder protocol is one of the two key transport protocols intended for use over an insecure network, both proposed by Roger *Needham and Michael Schroeder.*
-###The symmetric protocol
+* The Needham–Schroeder protocol is one of the two key transport protocols intended for use over an insecure network, both proposed by Roger *Needham and Michael Schroeder. *
+# The symmetric protocol
 Here, Alice (A) initiates the communication to Bob (B). S is a server trusted by both parties. In the communication:
 
     A and B are identities of Alice and Bob respectively
