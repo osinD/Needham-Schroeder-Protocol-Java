@@ -31,6 +31,6 @@ A → B : { Nb − 1 } Kab
 
     Alice performs a simple operation on the nonce, re-encrypts it and sends it back verifying that she is still alive and that she holds the key. 
 
-##Progrms
+## Programs
 We use sockets to transfer data between programs S, Sok_A_Client Sok_B_Client
-To encrypt data we use DES symetric key algorithm
+To encrypt and decrypt transfered data we use DES symetric key algorithm
