@@ -11,22 +11,26 @@ Here, Alice (A) initiates the communication to Bob (B). S is a server trusted by
 
 The protocol can be specified as follows in security protocol notation:
 
-A → S : A , B , N A {\displaystyle A\rightarrow S:\left.A,B,N_{A}\right.} A\rightarrow S:\left.A,B,N_{A}\right.
+A → S : A , B , Na
 
     Alice sends a message to the server identifying herself and Bob, telling the server she wants to communicate with Bob.
 
-S → A : { N A , K A B , B , { K A B , A } K B S } K A S {\displaystyle S\rightarrow A:\{N_{A},K_{AB},B,\{K_{AB},A\}_{K_{BS}}\}_{K_{AS}}} S\rightarrow A:\{N_{A},K_{{AB}},B,\{K_{{AB}},A\}_{{K_{{BS}}}}\}_{{K_{{AS}}}}
+S → A : { Na , Kab , B , { Kab, A } Kbs } Kas
 
-    The server generates K A B {\displaystyle {K_{AB}}} {K_{{AB}}} and sends back to Alice a copy encrypted under K B S {\displaystyle {K_{BS}}} {K_{{BS}}} for Alice to forward to Bob and also a copy for Alice. Since Alice may be requesting keys for several different people, the nonce assures Alice that the message is fresh and that the server is replying to that particular message and the inclusion of Bob's name tells Alice who she is to share this key with.
+    The server generates Kab and sends back to Alice a copy encrypted under Kbs for Alice to forward to Bob and also a copy for Alice. Since Alice may be requesting keys for several different people, the nonce assures Alice that the message is fresh and that the server is replying to that particular message and the inclusion of Bob's name tells Alice who she is to share this key with.
 
-A → B : { K A B , A } K B S {\displaystyle A\rightarrow B:\{K_{AB},A\}_{K_{BS}}} A\rightarrow B:\{K_{{AB}},A\}_{{K_{{BS}}}}
+A → B : { Kab , A } Kbs
 
     Alice forwards the key to Bob who can decrypt it with the key he shares with the server, thus authenticating the data.
 
-B → A : { N B } K A B {\displaystyle B\rightarrow A:\{N_{B}\}_{K_{AB}}} B\rightarrow A:\{N_{B}\}_{{K_{{AB}}}}
+B → A : { Nb } Kab
 
-    Bob sends Alice a nonce encrypted under K A B {\displaystyle {K_{AB}}} {K_{{AB}}} to show that he has the key.
+    Bob sends Alice a nonce encrypted under Kab to show that he has the key.
 
-A → B : { N B − 1 } K A B {\displaystyle A\rightarrow B:\{N_{B}-1\}_{K_{AB}}} A\rightarrow B:\{N_{B}-1\}_{{K_{{AB}}}}
+A → B : { Nb − 1 } Kab
 
     Alice performs a simple operation on the nonce, re-encrypts it and sends it back verifying that she is still alive and that she holds the key. 
+
+##Progrms
+We use sockets to transfer data between programs S, Sok_A_Client Sok_B_Client
+To encrypt data we use DES symetric key algorithm
